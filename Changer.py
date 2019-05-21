@@ -1,9 +1,22 @@
 import csv
-with open('C:\\Users\\smartintel\\Desktop\\Еремеев\\20190517-data_parser\\houses.csv', newline='') as houses:
-    houses_reader = csv.reader(houses, delimiter=';', quotechar='|')
-    for row in houses_reader:
-        if (row[1] == 'Г. КУРОВСКОЕ'):
-            print(type(row), row)
-    '''
+
+houses = []
+hardware=[]
+
+with open('houses.csv', newline='') as houses_read:
+    houses_list = csv.reader(houses_read, delimiter=';', quotechar='|')
     
-    '''
+    for row in houses_list:
+        houses.append(row)
+            
+with open('hardware_ku.csv', newline='') as hardware_read:
+    hardware_list = csv.reader(hardware_read, delimiter=';', quotechar='|')
+    
+    for row in hardware_list:
+        hardware.append(row)
+
+    for init in hardware: 
+        print(type(init), init)
+
+'''
+'''
