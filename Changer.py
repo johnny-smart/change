@@ -44,7 +44,7 @@ def hardware_init(fname):
         for row in hardware_list:
             # if(i != 0):
             try:
-                street_hard = row[0].lower()
+                street_hard = init[0].lower()
                 row[0] = street_hard
                 number_hard_init = row[1].split()
                 number_hard = number_hard_init[0].split('.')
@@ -83,6 +83,10 @@ def out(result):
 pass
 
 
+def out_file(result):
+
+
+
 def main():
 
     houses = houses_init()
@@ -92,6 +96,7 @@ def main():
     r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.csv')
 
     out(r)
+    out_file(r)
 pass
 
 if __name__ == "__main__":
