@@ -83,20 +83,27 @@ def out(result):
 pass
 
 
-def out_file(result):
-
+# def out_file(result):
 
 
 def main():
 
     houses = houses_init()
 
-    r = result_init(houses, 'Г. КУРОВСКОЕ', 'hardware_ku.csv')
+    r = result_init(
+                    houses,
+                    'Г. КУРОВСКОЕ',
+                    'hardware_ku.csv'
+                   )
 
-    r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.csv')
+    r = result_init(
+                    houses,
+                    'Г. ЛИКИНО-ДУЛЕВО',
+                    'hardware_ld.csv'
+                   )
 
     out(r)
-    out_file(r)
+    # out_file(r)
 pass
 
 if __name__ == "__main__":
