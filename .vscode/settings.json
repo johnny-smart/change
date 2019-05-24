@@ -1,0 +1,8 @@
+{
+    "python.pythonPath": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.7_3.7.1008.0_x64__qbz5n2kfra8p0\\python.exe",
+    "python.linting.pylintEnabled": false,
+    "python.linting.enabled": true,
+    "python.linting.banditEnabled": false,
+    "python.linting.pep8Enabled": true,
+    "python.linting.flake8Enabled": false
+}
