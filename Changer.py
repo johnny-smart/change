@@ -74,8 +74,10 @@ def result_init(houses, town, fname):
                 print('err try')
 
             try:
-                if(number_house_arr[1].isalpha()):
+                if(number_house_arr[1].isalpha() or
+                                              ('/' in number_house_arr[1])):
                     row[3] = "".join(number_house_arr)
+
             except BaseException:
                 pass
 
