@@ -12,6 +12,7 @@ def houses_init():  # функция для создания и заполнен
         for row in houses_list:  # заполнение массива данных
             pass
             houses.append(row)
+    houses_read.close()
     return(houses)
 
 
@@ -24,7 +25,7 @@ def hardware_init(fname):
 
         for row in hardware_list:
             hardware.append(row)
-
+    hardware_read.close()
     return(hardware)
 
 
@@ -99,9 +100,7 @@ def out_file(result):
                                quoting=csv.QUOTE_MINIMAL)
 
             scvwr.writerows(result)
-            # for row in result:
-            #     scvwr.writerow(row)
-# pass
+        newfile.close()
 
 
 def main():
