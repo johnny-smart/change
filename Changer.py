@@ -1,7 +1,9 @@
 import openpyxl
 import csv
+from profilehooks import timecall
 
 
+@timecall
 def houses_init():  # функция для создания и заполнения массива записей домов
                     # (ввод: имя внутри функции, вывод: маcсив записей)
     houses = []
@@ -19,6 +21,7 @@ def houses_init():  # функция для создания и заполнен
     return(houses)
 
 
+@timecall
 def hardware_init(fname):
     hardware = []
     hardware_wb = openpyxl.load_workbook(fname)
@@ -38,6 +41,7 @@ def hardware_init(fname):
     return(hardware)
 
 
+@timecall
 def result_init(houses, town, fname):
     hardware = hardware_init(fname)
     result = []
@@ -94,6 +98,7 @@ def out_console(result):
 pass
 
 
+@timecall
 def out_file(result):
     try:
         with open('result.csv', newline='') as newfile:
@@ -109,7 +114,7 @@ def out_file(result):
             scvwr.writerows(result)
         newfile.close()
 
-
+@timecall
 def main():
 
     houses = houses_init()
@@ -117,13 +122,13 @@ def main():
     r = result_init(houses, 'Г. КУРОВСКОЕ', 'hardware_ku.xlsx')
     out_file(r)
 
-    # r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.xlsx')
-    # out_file(r)
+    r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.xlsx')
+    out_file(r)
 
-    # r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_oz.xlsx')
-    # out_file(r)
+    r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_oz.xlsx')
+    out_file(r)
 
-    # out_console(r)
+    #  out_console(r)
 pass
 
 if __name__ == "__main__":
