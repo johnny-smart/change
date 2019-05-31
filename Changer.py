@@ -1,8 +1,8 @@
 import xlrd
-import xlwt
 import csv
+from profilehooks import timecall
 
-
+@timecall
 def houses_init():  # функция для создания и заполнения массива записей домов
                     # (ввод: имя внутри функции, вывод: маcсив записей)
     houses = []
@@ -25,7 +25,7 @@ def houses_init():  # функция для создания и заполнен
 
     return(houses)
 
-
+@timecall
 def hardware_init(fname):
     hardware = []
     '''
@@ -48,7 +48,7 @@ def hardware_init(fname):
 
     return(hardware)
 
-
+@timecall
 def result_init(houses, town, fname):
     hardware = hardware_init(fname)
     result = []
@@ -104,7 +104,7 @@ def out_console(result):
         print(row)
 pass
 
-
+@timecall
 def out_file(result):
     try:
         with open('result.csv', newline='') as newfile:
@@ -120,7 +120,7 @@ def out_file(result):
             scvwr.writerows(result)
         newfile.close()
 
-
+@timecall
 def main():
 
     houses = houses_init()
