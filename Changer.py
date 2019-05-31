@@ -1,6 +1,6 @@
 import openpyxl
 import csv
-from profilehooks import timecall, profile, coverage
+from profilehooks import timecall, profile
 
 
 @timecall
@@ -33,7 +33,7 @@ def hardware_init(fname):
         cols = [None]*20
         for init in row:
             cols[init.column-1] = init.value
-            if ((init.column == 2) and (init.font.strike == True)):
+            if ((init.column == 2) and (init.font.strike: True)):
                 cols[19] = 1
             elif (init.column == 2):
                 cols[19] = 0
@@ -80,7 +80,8 @@ def result_init(houses, town, fname):
                (number_hard.lower() == number_house.lower()) &
                (row[1] == town)):
                 # .append > =
-                res_tmp.append(init[:4]+row[:4]+[number_hard, number_house]+[init[19]])
+                res_tmp.append(init[:4]+row[:4]+[number_hard, number_house] +
+                                   [init[19]])
 
         if not res_tmp:
             # print(init[:4])
@@ -114,7 +115,8 @@ def out_file(result):
             scvwr.writerows(result)
         newfile.close()
 
-@coverage
+
+@profile
 def main():
 
     houses = houses_init()
