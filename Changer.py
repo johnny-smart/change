@@ -1,51 +1,40 @@
-import xlrd
-import xlwt
+import openpyxl
 import csv
 
 
 def houses_init():  # функция для создания и заполнения массива записей домов
                     # (ввод: имя внутри функции, вывод: маcсив записей)
     houses = []
-    '''with open('houses.csv', newline='') as houses_read:  # чтение csv файла
-        next(houses_read, None)
-        houses_list = csv.reader(houses_read, delimiter=';')
-
-        for row in houses_list:  # заполнение массива данных
-            pass
-            houses.append(row)
-    houses_read.close()'''
-
-    houses_read = xlrd.open_workbook('houses.xlsx')
-    house_list = houses_read.sheet_by_index(0)
-
-    for row in range(house_list.nrows):
-        houses.append(house_list.row_values(row))
-
-    houses.pop(0)
-
+    houses_wb = openpyxl.load_workbook('houses.xlsx')
+    houses_sn = houses_wb.sheetnames[0]
+    w_sheet = houses_wb[houses_sn]
+    houses_list = w_sheet.rows
+    next(houses_list)
+    for row in houses_list:
+        cols = []
+        for init in row:
+            cols.append(init.value)
+        houses.append(cols)
+    # print (w_sheet['B2'].value)
     return(houses)
 
 
 def hardware_init(fname):
     hardware = []
-    '''
-    with open(fname, newline='') as hardware_read:
-        next(hardware_read, None)
-        hardware_list = csv.reader(hardware_read, delimiter=';')
-
-        for row in hardware_list:
-            hardware.append(row)
-    '''
-    hardware_read = xlrd.open_workbook(fname)
-    hardware_list = hardware_read.sheet_by_index(0)
-
-    for row in range(hardware_list.nrows):
-        # for row in hardware_list.get_rows():
-        hardware.append(hardware_list.row_values(row))
-        # hardware.append(row)
-
-    hardware.pop(0)
-
+    hardware_wb = openpyxl.load_workbook(fname)
+    hardware_sn = hardware_wb.sheetnames[0]
+    w_sheet = hardware_wb[hardware_sn]
+    hardware_list = w_sheet.rows
+    next(hardware_list)
+    for row in hardware_list:
+        cols = [None]*20
+        for init in row:
+            cols[init.column-1] = init.value
+            if ((init.column == 2) and (init.font.strike == True)):
+                cols[19] = 1
+            elif (init.column == 2):
+                cols[19] = 0
+        hardware.append(cols)
     return(hardware)
 
 
@@ -87,7 +76,7 @@ def result_init(houses, town, fname):
                (number_hard.lower() == number_house.lower()) &
                (row[1] == town)):
                 # .append > =
-                res_tmp.append(init[:4]+row[:4]+[number_hard, number_house])
+                res_tmp.append(init[:4]+row[:4]+[number_hard, number_house]+[init[19]])
 
         if not res_tmp:
             # print(init[:4])
@@ -128,11 +117,11 @@ def main():
     r = result_init(houses, 'Г. КУРОВСКОЕ', 'hardware_ku.xlsx')
     out_file(r)
 
-    r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.xlsx')
-    out_file(r)
+    # r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.xlsx')
+    # out_file(r)
 
-    r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_oz.xlsx')
-    out_file(r)
+    # r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_oz.xlsx')
+    # out_file(r)
 
     # out_console(r)
 pass
