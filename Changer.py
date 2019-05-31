@@ -1,6 +1,6 @@
 import openpyxl
 import csv
-from profilehooks import timecall
+from profilehooks import timecall, profile, coverage
 
 
 @timecall
@@ -114,7 +114,7 @@ def out_file(result):
             scvwr.writerows(result)
         newfile.close()
 
-@timecall
+@coverage
 def main():
 
     houses = houses_init()
@@ -129,6 +129,7 @@ def main():
     out_file(r)
 
     #  out_console(r)
+
 pass
 
 if __name__ == "__main__":
