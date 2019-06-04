@@ -2,6 +2,7 @@ import openpyxl
 import csv
 from profilehooks import timecall, profile
 
+ErrRec=[]
 
 @timecall
 def houses_init():  # функция для создания и заполнения массива записей домов
@@ -33,7 +34,7 @@ def hardware_init(fname):
         cols = [None]*20
         for init in row:
             cols[init.column-1] = init.value
-            if ((init.column == 2) and (init.font.strike: True)):
+            if ((init.column == 2) and (init.font.strike == True)):
                 cols[19] = 1
             elif (init.column == 2):
                 cols[19] = 0
@@ -85,7 +86,7 @@ def result_init(houses, town, fname):
 
         if not res_tmp:
             # print(init[:4])
-            result.append(init)
+            ErrRec.append(init)
         else:
             result.append(res_tmp)
 
@@ -100,15 +101,15 @@ pass
 
 
 @timecall
-def out_file(result):
+def out_file(result,namefile):
     try:
-        with open('result.csv', newline='') as newfile:
+        with open(namefile + '.csv', newline='') as newfile:
             scvwr = csv.writer(newfile, delimiter=';')
 
             for row in result:
                 scvwr.writerow(row)
     except BaseException:
-        with open('result.csv', 'a+', newline='') as newfile:
+        with open(namefile + '.csv', 'a+', newline='') as newfile:
             scvwr = csv.writer(newfile, delimiter=';',
                                quoting=csv.QUOTE_MINIMAL)
 
@@ -122,14 +123,14 @@ def main():
     houses = houses_init()
 
     r = result_init(houses, 'Г. КУРОВСКОЕ', 'hardware_ku.xlsx')
-    out_file(r)
+    out_file(r,'result')
 
     r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.xlsx')
-    out_file(r)
+    out_file(r,'result')
 
     r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_oz.xlsx')
-    out_file(r)
-
+    out_file(r,'result')
+    out_file(ErrRec,'Err')
     #  out_console(r)
 
 pass
