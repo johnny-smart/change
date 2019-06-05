@@ -1,8 +1,13 @@
 import openpyxl
 import csv
 from profilehooks import timecall, profile
+from geolocation import geoadressation
+from os import remove as delite
 
-ErrRec=[]
+ErrRec = []
+geodata = []
+result = []
+
 
 @timecall
 def houses_init():  # функция для создания и заполнения массива записей домов
@@ -34,7 +39,7 @@ def hardware_init(fname):
         cols = [None]*20
         for init in row:
             cols[init.column-1] = init.value
-            if ((init.column == 2) and (init.font.strike == True)):
+            if ((init.column == 2) and (init.font.strike is True)):
                 cols[19] = 1
             elif (init.column == 2):
                 cols[19] = 0
@@ -45,7 +50,6 @@ def hardware_init(fname):
 @timecall
 def result_init(houses, town, fname):
     hardware = hardware_init(fname)
-    result = []
     print("hardware:", len(hardware))
     for init in hardware:
         res_tmp = []
@@ -90,6 +94,12 @@ def result_init(houses, town, fname):
         else:
             result.append(res_tmp)
 
+            adress = (res_tmp[0][5] + ', ' + res_tmp[0][1] + ', ' +
+                      res_tmp[0][2])
+
+            location = geoadressation(adress)
+            geodata.append([str(res_tmp[0][4])] + [location])
+
     print("result:", len(result))
     return(result)
 
@@ -101,20 +111,19 @@ pass
 
 
 @timecall
-def out_file(result,namefile):
-    try:
-        with open(namefile + '.csv', newline='') as newfile:
-            scvwr = csv.writer(newfile, delimiter=';')
+def out_file(result, namefile):
+    # try:
+    #     with open(namefile + '.csv', newline='') as newfile:
+    #         scvwr = csv.writer(newfile, delimiter=';')
+    #         for row in result:
+    #             scvwr.writerow(row)
+    # except BaseException:
 
-            for row in result:
-                scvwr.writerow(row)
-    except BaseException:
-        with open(namefile + '.csv', 'a+', newline='') as newfile:
-            scvwr = csv.writer(newfile, delimiter=';',
-                               quoting=csv.QUOTE_MINIMAL)
-
-            scvwr.writerows(result)
-        newfile.close()
+    delite(namefile + '.csv')
+    with open(namefile + '.csv', 'a+', newline='') as newfile:
+        scvwr = csv.writer(newfile, delimiter=';', quoting=csv.QUOTE_MINIMAL)
+        scvwr.writerows(result)
+    newfile.close()
 
 
 @profile
@@ -123,16 +132,13 @@ def main():
     houses = houses_init()
 
     r = result_init(houses, 'Г. КУРОВСКОЕ', 'hardware_ku.xlsx')
-    out_file(r,'result')
+    #r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.xlsx')
+    #r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_oz.xlsx')
 
-    r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.xlsx')
-    out_file(r,'result')
+    out_file(r, 'result')
 
-    r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_oz.xlsx')
-    out_file(r,'result')
-    out_file(ErrRec,'Err')
-    #  out_console(r)
-
+    out_file(ErrRec, 'Err')
+    out_file(geodata, 'Geo')
 pass
 
 if __name__ == "__main__":
