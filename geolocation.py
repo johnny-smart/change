@@ -8,7 +8,7 @@ def geoadressation(adress):
     print(adress)
 
     print("Start : %s" % time.ctime())
-    time.sleep(1)
+    time.sleep(3)
     print("End : %s" % time.ctime())
 
     def google(adress):
