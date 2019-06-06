@@ -2,12 +2,8 @@ import openpyxl
 import csv
 from profilehooks import timecall, profile
 from geolocation import geoadressation
-from os import remove as delite
+from os import remove
 from os import path
-ErrRec = []
-geodata = []
-result = []
-double = []
 
 
 @timecall
@@ -29,28 +25,34 @@ def houses_init():  # функция для создания и заполнен
 
 
 @timecall
-def hardware_init(fname):
+def hardware_init(fname, sheet):
     hardware = []
     hardware_wb = openpyxl.load_workbook(fname)
-    hardware_sn = hardware_wb.sheetnames[0]
-    w_sheet = hardware_wb[hardware_sn]
-    hardware_list = w_sheet.rows
+    hardware_list = hardware_wb[sheet].rows
     next(hardware_list)
     for row in hardware_list:
         cols = [None]*20
         for init in row:
             cols[init.column-1] = init.value
-            if ((init.column == 2) and (init.font.strike is True)):
+            if ((init.column == 1) and (init.font.strike is True)):
                 cols[19] = 1
-            elif (init.column == 2):
+            elif (init.column == 1):
                 cols[19] = 0
+            if (init.column == 4 or init.column == 5):
+                cols[18] = 1 if init.fill.fgColor.rgb == 'FF00B0F0' else 0
+
         hardware.append(cols)
     return(hardware)
 
 
 @timecall
-def result_init(houses, town, fname):
-    hardware = hardware_init(fname)
+def result_init(houses, town, fname, sheet):
+
+    _err = []
+    _double = []
+    _result = []
+
+    hardware = hardware_init(fname, sheet)
     print("hardware:", len(hardware))
     for init in hardware:
         res_tmp = []
@@ -93,18 +95,17 @@ def result_init(houses, town, fname):
                (number_hard == number_house) &
                (row[1] == town)):
                 # .append > =
-                res_tmp.append(init[:3]+row[:4]+[number_hard, number_house] +
-                                   [init[19]])
+                res_tmp.append(init+[int(row[0])])
 
         if not res_tmp:
             # print(init[:4])
-            ErrRec.append(init)
+            _err += init
         else:
             if (len(res_tmp) > 1):
-                double.append(res_tmp)
+                _double += res_tmp
                 # print(type(res_tmp[1]))
             else:
-                result.append(res_tmp)
+                _result += res_tmp
 
             # adress = (res_tmp[0][5] + ', ' + res_tmp[0][1] + ', ' +
             #           res_tmp[0][2])
@@ -112,8 +113,8 @@ def result_init(houses, town, fname):
             # location = geoadressation(adress)
             # geodata.append([str(res_tmp[0][4])] + [location])
 
-    print("result:", len(result))
-    return(result)
+    print("result:", len(_result))
+    return _result, _double, _err
 
 
 def out_console(result):
@@ -132,7 +133,7 @@ def out_file(result, namefile):
     # except BaseException:
 
     if path.isfile(namefile + '.csv'):
-        delite(namefile + '.csv')
+        remove(namefile + '.csv')
     with open(namefile + '.csv', 'a+', newline='') as newfile:
         scvwr = csv.writer(newfile, delimiter=';', quoting=csv.QUOTE_MINIMAL)
         scvwr.writerows(result)
@@ -141,16 +142,38 @@ def out_file(result, namefile):
 
 @profile
 def main():
-
+    errrec = []
+    # geodata = []
+    result = []
+    double = []
     houses = houses_init()
 
-    r = result_init(houses, 'Г. КУРОВСКОЕ', 'hardware_ku.xlsx')
-    r = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО', 'hardware_ld.xlsx')
-    r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_oz.xlsx')
+    _result, _err, _double = result_init(houses, 'Г. КУРОВСКОЕ',
+                                                 'hardware_copy.xlsx',
+                                                 'Комутаторы КУ')
+    result += _result
+    errrec += _err
+    double += _double
 
-    out_file(r, 'result')
+    _result, _err, _double = result_init(houses, 'Г. ЛИКИНО-ДУЛЕВО',
+                                                 'hardware_copy.xlsx',
+                                                 'Комутаторы ЛД')
+    result += _result
+    errrec += _err
+    double += _double
 
-    out_file(ErrRec, 'Err')
+    _result, _err, _double = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО',
+                                                 'hardware_copy.xlsx',
+                                                 'Комутаторы ОЗ')
+    result += _result
+    errrec += _err
+    double += _double
+
+    # r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_copy.xlsx', 'Комутаторы ОЗ')
+    # r = result_init(houses, 'Г. ОРЕХОВО-ЗУЕВО', 'hardware_copy.xlsx', 'Комутаторы ОЗ')
+
+    out_file(result, 'result')
+    out_file(errrec, 'Err')
     out_file(double, 'Дубли')
 pass
 
