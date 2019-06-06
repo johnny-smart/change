@@ -8,7 +8,7 @@ def geoadressation(adress):
     print(adress)
 
     print("Start : %s" % time.ctime())
-    time.sleep(3)
+    time.sleep(4)
     print("End : %s" % time.ctime())
 
     def google(adress):
@@ -36,4 +36,5 @@ def geoadressation(adress):
     print(checking)
     print(' ')
     return checking
-#geoadressation('Г. КУРОВСКОЕ, Совхозная, 18')
+
+    # geoadressation('Г. КУРОВСКОЕ, Совхозная, 18')
