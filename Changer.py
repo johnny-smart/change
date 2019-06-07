@@ -183,3 +183,72 @@ pass
 
 if __name__ == "__main__":
     main()
+
+
+# houses_init :=9):
+#     1.341 seconds
+
+
+#   hardware_init :=28):
+#     0.448 seconds
+
+# hardware: 59
+# result: 59
+
+#   result_init :=50):
+#     1.967 seconds
+
+
+#   houses_init :=9):
+#     1.360 seconds
+
+
+#   hardware_init :=28):
+#     0.449 seconds
+
+# hardware: 155
+# result: 155
+
+#   result_init :=50):
+#     2.303 seconds
+
+
+#   houses_init :=9):
+#     1.403 seconds
+
+
+#   hardware_init :=28):
+#     0.487 seconds
+
+# hardware: 647
+# result: 647
+
+#   result_init :=50):
+#     7.461 seconds
+
+
+#   houses_init :=9):
+#     1.491 seconds
+
+
+#   hardware_init :=28):
+#     0.460 seconds
+
+# hardware: 16
+# result: 16
+
+#   result_init :=50):
+#     1.961 seconds
+
+
+#   out_file :=123):
+#     0.008 seconds
+
+
+#   out_file :=123):
+#     0.001 seconds
+
+
+#   out_file :=123):
+#     0.001 seconds
+
