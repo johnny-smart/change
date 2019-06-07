@@ -1,7 +1,7 @@
 import openpyxl
 import csv
 from profilehooks import timecall, profile
-# from geolocation import geoadressation
+from geolocation import geoadressation
 from os import remove
 from os import path
 
