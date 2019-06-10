@@ -33,18 +33,21 @@ def houses_filter(town, houses):
 
 @timecall
 def hardware_init(fname, sheet):
+
     hardware = []
+
     hardware_wb = openpyxl.load_workbook(fname)
     hardware_list = hardware_wb[sheet].rows
+
     next(hardware_list)
+
     for row in hardware_list:
         cols = [None]*20
         for init in row:
             cols[init.column-1] = init.value
 
-            # if init.column == 2:
-
-            if ((init.column == 10) or (init.column == 11)) and (init.value is not None):
+            if (((init.column == 10) or (init.column == 11)) and
+               (init.value is not None)):
                 cols[init.column-1] = str(init.value).split(' ')[0]
             if ((init.column == 1) and (init.font.strike is True)):
                 cols[19] = 1
@@ -93,17 +96,18 @@ def result_init(town, fname, sheet, houses):
 
             number_house = row[3]
 
-            street_house = street_house.lower().strip()
-            street_hard = street_hard.lower().strip()
-            number_hard = number_hard.lower().strip()
-            number_house = number_house
-            if (street_house == 'ул. .'):
-                street_house = row[1].lower().strip()
+            if ((street_house == 'УЛ. .') or (street_house == 'ул. .') or
+               (street_house == 'Ул. .')):
+                street_house = row[1]
 
-            if((street_house.lower().strip().find(street_hard.lower().strip(), 0) != -1) &
+            if((street_house.lower().strip().find(
+
+                street_hard.lower().strip(), 0) != -1) &
+
                (number_hard.lower().strip() == number_house.lower().strip()) &
+
                (row[1] == town)):
-                # .append > =
+
                 res_tmp.append([init[0]]+[str(init[1])]+init[2:]+[int(row[0])])
 
         if not res_tmp:
