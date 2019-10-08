@@ -26,7 +26,7 @@ def houses_init():  # функция для создания и заполнен
 def houses_filter(town, houses):
     houses_filtred = []
     for row in houses:
-        if (row[1] == town):
+        if (row[1] in town):
             houses_filtred.append(row)
     return houses_filtred
 
@@ -54,8 +54,8 @@ def hardware_init(fname, sheet):
             if (init.column == 4 or init.column == 5):
                 if(init.fill.fgColor.rgb == 'FF00B0F0'):
                     cols[18] = 1
-
-        hardware.append(cols)
+        if not (cols[0] is None):
+            hardware.append(cols)
     return(hardware)
 
 
@@ -80,7 +80,7 @@ def result_init(town, fname, sheet, houses):
         for row in houses_town:
 
             try:
-                number_house_arr = row[3].split()
+                number_house_arr = str(row[3]).split()
                 row[3] = number_house_arr[0]
                 street_house = row[2]
             except BaseException:
@@ -96,26 +96,37 @@ def result_init(town, fname, sheet, houses):
 
             number_house = row[3]
 
+            street_house_tmp = street_house.upper().strip()
+            street_hard_tmp = street_hard.upper().strip()
+
             if ((street_house == 'УЛ. .') or (street_house == 'ул. .') or
                (street_house == 'Ул. .')):
                 street_house = row[1]
 
-            if((street_house.lower().strip().find(
+            if len(street_house.upper().strip().split(' ', 1)) > 1:
+                street_house_tmp = street_house.upper().strip().split(' ')[-1]
+            if len(street_hard.upper().strip().split(' ', 1)) > 1:
+                street_hard_tmp = street_hard.upper().strip().split(' ')[-1]
 
-                street_hard.lower().strip(), 0) != -1) &
+            if ((street_house_tmp == street_hard_tmp) &
 
-               (number_hard.lower().strip() == number_house.lower().strip()) &
+                (number_hard.upper().strip() == number_house.upper().strip()) &
 
-               (row[1] == town)):
+                (row[1] in town)):
 
                 res_tmp.append([init[0]]+[str(init[1])]+init[2:]+[int(row[0])])
+                break
 
         if not res_tmp:
             # print(init[:4])
             _err += [init]
         else:
             if (len(res_tmp) > 1):
-                _double += res_tmp
+                for record in res_tmp:
+                    if (record[18] or record[19]) == '1':
+                        _double += res_tmp
+                    else:
+                        _result += res_tmp
                 # print(type(res_tmp[1]))
             else:
                 _result += res_tmp
@@ -184,6 +195,15 @@ def main():
     _result, _err, _double = result_init('Д. КАБАНОВО',
                                          'hardware_copy.xlsx',
                                          'Комутаторы КБ', houses)
+
+    result += _result
+    errrec += _err
+    double += _double
+
+    _result, _err, _double = result_init(
+        ['Д. ДЕМИХОВО', 'Д. НАЖИЦЫ', 'Д. КРАСНАЯ ДУБРАВА'],
+        'hardware_copy.xlsx',
+        'Комутаторы ДМ', houses)
     result += _result
     errrec += _err
     double += _double
