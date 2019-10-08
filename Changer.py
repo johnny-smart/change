@@ -96,17 +96,16 @@ def result_init(town, fname, sheet, houses):
 
             number_house = row[3]
 
-            street_house_tmp = street_house.upper().strip()
             street_hard_tmp = street_hard.upper().strip()
 
             if ((street_house == 'УЛ. .') or (street_house == 'ул. .') or
                (street_house == 'Ул. .')):
                 street_house = row[1]
 
-            if len(street_house.upper().strip().split(' ', 1)) > 1:
-                street_house_tmp = street_house.upper().strip().split(' ')[-1]
-            if len(street_hard.upper().strip().split(' ', 1)) > 1:
-                street_hard_tmp = street_hard.upper().strip().split(' ')[-1]
+            if len(street_hard_tmp.split('.')) < 2:
+                street_hard_tmp = 'УЛ. ' + street_hard_tmp
+
+            street_house_tmp = street_house.upper().strip()
 
             if ((street_house_tmp == street_hard_tmp) &
 
@@ -138,7 +137,7 @@ def result_init(town, fname, sheet, houses):
             # geodata.append([str(res_tmp[0][4])] + [location])
 
     print("result:", len(_result))
-    return _result, _double, _err
+    return _result, _err, _double,
 
 
 @timecall
