@@ -5,10 +5,10 @@ from geolocation import geoadressation
 from os import remove
 from os import path
 
-
+# функция для создания и заполнения массива записей домов
+# (ввод: имя внутри функции, вывод: маcсив записей)
 @timecall
-def houses_init():  # функция для создания и заполнения массива записей домов
-                    # (ввод: имя внутри функции, вывод: маcсив записей)
+def houses_init():
     houses = []
     houses_wb = openpyxl.load_workbook('houses.xlsx')
     houses_sn = houses_wb.sheetnames[0]
@@ -107,11 +107,10 @@ def result_init(town, fname, sheet, houses):
 
             street_house_tmp = street_house.upper().strip()
 
-            if ((street_house_tmp == street_hard_tmp) &
-
-                (number_hard.upper().strip() == number_house.upper().strip()) &
-
-                (row[1] in town)):
+            if (
+                    (street_house_tmp == street_hard_tmp) &
+                    (number_hard.upper().strip() == number_house.upper().strip()) &
+                    (row[1] in town)):
 
                 res_tmp.append([init[0]]+[str(init[1])]+init[2:]+[int(row[0])])
                 break
@@ -210,7 +209,27 @@ def main():
     out_file(result, 'result')
     out_file(errrec, 'Err')
     out_file(double, 'Дубли')
-pass
+
+    errrec = []
+    # geodata = []
+    result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
+               'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
+               'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
+               'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
+               'P_REMOVED', 'P_TRANSIT', 'P_HOUSE_ID']]
+    double = []
+
+    _result, _err, _double = result_init('Г. ОРЕХОВО-ЗУЕВО',
+                                         'hardware_copy.xlsx',
+                                         'Broken ОЗ', houses)
+    result += _result
+    errrec += _err
+    double += _double
+
+    out_file(result, 'result_Broken')
+    out_file(errrec, 'Err_Broken')
+    out_file(double, 'Дубли')
+
 
 if __name__ == "__main__":
     main()
