@@ -36,5 +36,3 @@ def geoadressation(adress):
     print(checking)
     print(' ')
     return checking
-
-    # geoadressation('Г. КУРОВСКОЕ, Совхозная, 18')

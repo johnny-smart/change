@@ -1,7 +1,8 @@
 import openpyxl
 import csv
+import config
 from profilehooks import timecall, profile
-from geolocation import geoadressation
+# from geolocation import geoadressation
 from os import remove
 from os import path
 
@@ -87,8 +88,10 @@ def result_init(town, fname, sheet, houses):
                 print('err try')
 
             try:
-                if(number_house_arr[1].isalpha() or
-                                              ('/' in number_house_arr[1])):
+                if(
+                    (number_house_arr[1][0].isalpha()) or
+                    ('/' in number_house_arr[1])
+                ):
                     row[3] = "".join(number_house_arr)
 
             except BaseException:
@@ -108,9 +111,10 @@ def result_init(town, fname, sheet, houses):
             street_house_tmp = street_house.upper().strip()
 
             if (
-                    (street_house_tmp == street_hard_tmp) &
-                    (number_hard.upper().strip() == number_house.upper().strip()) &
-                    (row[1] in town)):
+                (street_house_tmp == street_hard_tmp) &
+                (number_hard.upper().strip() == number_house.upper().strip()) &
+                (row[1] in town)
+                                ):
 
                 res_tmp.append([init[0]]+[str(init[1])]+init[2:]+[int(row[0])])
                 break
@@ -148,11 +152,20 @@ def out_file(result, namefile):
     #             scvwr.writerow(row)
     # except BaseException:
 
-    if path.isfile(namefile + '.csv'):
-        remove(namefile + '.csv')
-    with open(namefile + '.csv', 'a+', newline='') as newfile:
+    if path.isfile('output/' + namefile + '.csv'):
+        remove('output/' + namefile + '.csv')
+
+    with open(
+
+                'output/' + namefile + '.csv',
+                'a+',
+                newline=''
+
+            ) as newfile:
+
         scvwr = csv.writer(newfile, delimiter=';', quoting=csv.QUOTE_MINIMAL)
         scvwr.writerows(result)
+
     newfile.close()
 
 
@@ -168,6 +181,17 @@ def main():
     double = []
 
     houses = houses_init()
+    _result, _err, _double = result_init(
+                                        'Г. ОРЕХОВО-ЗУЕВО',
+                                        'hardware_copy.xlsx',
+                                        'Комутаторы ОЗ', houses)
+    result += _result
+    errrec += _err
+    double += _double
+
+    out_file(result, 'result_OZ')
+    out_file(errrec, 'Err_OZ')
+    out_file(double, 'Дубли')
 
     _result, _err, _double = result_init('Г. КУРОВСКОЕ',
                                          'hardware_copy.xlsx',
@@ -179,13 +203,6 @@ def main():
     _result, _err, _double = result_init('Г. ЛИКИНО-ДУЛЕВО',
                                          'hardware_copy.xlsx',
                                          'Комутаторы ЛД', houses)
-    result += _result
-    errrec += _err
-    double += _double
-
-    _result, _err, _double = result_init('Г. ОРЕХОВО-ЗУЕВО',
-                                         'hardware_copy.xlsx',
-                                         'Комутаторы ОЗ', houses)
     result += _result
     errrec += _err
     double += _double
