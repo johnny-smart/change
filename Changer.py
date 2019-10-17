@@ -11,7 +11,7 @@ from os import path
 @timecall
 def houses_init():
     houses = []
-    houses_wb = openpyxl.load_workbook('houses.xlsx')
+    houses_wb = openpyxl.load_workbook(config.HOUSES)
     houses_sn = houses_wb.sheetnames[0]
     w_sheet = houses_wb[houses_sn]
     houses_list = w_sheet.rows
@@ -152,12 +152,12 @@ def out_file(result, namefile):
     #             scvwr.writerow(row)
     # except BaseException:
 
-    if path.isfile('output/' + namefile + '.csv'):
-        remove('output/' + namefile + '.csv')
+    if path.isfile(config.DIR + namefile + '.csv'):
+        remove(config.DIR + namefile + '.csv')
 
     with open(
 
-                'output/' + namefile + '.csv',
+                config.DIR + namefile + '.csv',
                 'a+',
                 newline=''
 
@@ -165,7 +165,7 @@ def out_file(result, namefile):
 
         scvwr = csv.writer(newfile, delimiter=';', quoting=csv.QUOTE_MINIMAL)
         scvwr.writerows(result)
-
+    print(namefile + ' done')
     newfile.close()
 
 
@@ -183,7 +183,7 @@ def main():
     houses = houses_init()
     _result, _err, _double = result_init(
                                         'Г. ОРЕХОВО-ЗУЕВО',
-                                        'hardware_copy.xlsx',
+                                        config.HARDWARE,
                                         'Комутаторы ОЗ', houses)
     result += _result
     errrec += _err
@@ -194,21 +194,21 @@ def main():
     out_file(double, 'Дубли')
 
     _result, _err, _double = result_init('Г. КУРОВСКОЕ',
-                                         'hardware_copy.xlsx',
+                                         config.HARDWARE,
                                          'Комутаторы КУ', houses)
     result += _result
     errrec += _err
     double += _double
 
     _result, _err, _double = result_init('Г. ЛИКИНО-ДУЛЕВО',
-                                         'hardware_copy.xlsx',
+                                         config.HARDWARE,
                                          'Комутаторы ЛД', houses)
     result += _result
     errrec += _err
     double += _double
 
     _result, _err, _double = result_init('Д. КАБАНОВО',
-                                         'hardware_copy.xlsx',
+                                         config.HARDWARE,
                                          'Комутаторы КБ', houses)
 
     result += _result
@@ -217,7 +217,7 @@ def main():
 
     _result, _err, _double = result_init(
         ['Д. ДЕМИХОВО', 'Д. НАЖИЦЫ', 'Д. КРАСНАЯ ДУБРАВА'],
-        'hardware_copy.xlsx',
+        config.HARDWARE,
         'Комутаторы ДМ', houses)
     result += _result
     errrec += _err
@@ -237,7 +237,7 @@ def main():
     double = []
 
     _result, _err, _double = result_init('Г. ОРЕХОВО-ЗУЕВО',
-                                         'hardware_copy.xlsx',
+                                         config.HARDWARE,
                                          'Broken ОЗ', houses)
     result += _result
     errrec += _err
