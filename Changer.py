@@ -173,11 +173,12 @@ def out_file(result, namefile):
 def main():
     errrec = []
     # geodata = []
-    result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
-               'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
-               'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
-               'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
-               'P_REMOVED', 'P_TRANSIT', 'P_HOUSE_ID']]
+    result = [[
+        'P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
+        'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
+        'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
+        'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
+        'P_TRANSIT','P_REMOVED', 'P_HOUSE_ID']]
     double = []
 
     houses = houses_init()
