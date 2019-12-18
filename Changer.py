@@ -5,6 +5,21 @@ from profilehooks import timecall, profile
 # from geolocation import geoadressation
 from os import remove
 from os import path
+from err_decorator import error_decorator
+
+
+global err_rec
+err_rec = []
+# geodata = []
+global result
+result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
+            'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
+            'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
+            'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
+            'P_TRANSIT', 'P_REMOVED', 'P_HOUSE_ID']]
+global double
+double = []
+
 
 # функция для создания и заполнения массива записей домов
 # (ввод: имя внутри функции, вывод: маcсив записей)
@@ -50,7 +65,7 @@ def hardware_init(fname, sheet):
             if (((init.column == 10) or (init.column == 11)) and
                (init.value is not None)):
                 cols[init.column-1] = str(init.value).split(' ')[0]
-            if ((init.column == 1) and (init.font.strike is True)):
+            if (((init.column == 1) or (init.column == 2)) and (init.font.strike is True)):
                 cols[19] = 1
             if (init.column == 4 or init.column == 5):
                 if(init.fill.fgColor.rgb == 'FF00B0F0'):
@@ -61,6 +76,7 @@ def hardware_init(fname, sheet):
 
 
 @timecall
+@error_decorator(err_rec, result, double)
 def result_init(town, fname, sheet, houses):
     houses_town = houses_filter(town, houses)
     _err = []
@@ -168,84 +184,68 @@ def out_file(result, namefile):
     print(namefile + ' done')
     newfile.close()
 
-
 @profile
 def main():
-    errrec = []
-    # geodata = []
-    result = [[
-        'P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
-        'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
-        'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
-        'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
-        'P_TRANSIT','P_REMOVED', 'P_HOUSE_ID']]
-    double = []
+
 
     houses = houses_init()
-    _result, _err, _double = result_init(
-                                        'Г. ОРЕХОВО-ЗУЕВО',
-                                        config.HARDWARE,
-                                        'Комутаторы ОЗ', houses)
-    result += _result
-    errrec += _err
-    double += _double
+    result_init(
+        'Г. ОРЕХОВО-ЗУЕВО',
+        config.HARDWARE,
+        'Комутаторы ОЗ', houses
+        )
 
     out_file(result, 'result_OZ')
-    out_file(errrec, 'Err_OZ')
+    out_file(err_rec, 'Err_OZ')
     out_file(double, 'Дубли')
 
-    _result, _err, _double = result_init('Г. КУРОВСКОЕ',
+    result_init('Г. КУРОВСКОЕ',
                                          config.HARDWARE,
                                          'Комутаторы КУ', houses)
-    result += _result
-    errrec += _err
-    double += _double
 
-    _result, _err, _double = result_init('Г. ЛИКИНО-ДУЛЕВО',
-                                         config.HARDWARE,
-                                         'Комутаторы ЛД', houses)
-    result += _result
-    errrec += _err
-    double += _double
 
-    _result, _err, _double = result_init('Д. КАБАНОВО',
-                                         config.HARDWARE,
-                                         'Комутаторы КБ', houses)
+    result_init(
+        'Г. ЛИКИНО-ДУЛЕВО',
+        config.HARDWARE,
+        'Комутаторы ЛД', houses
+        )
 
-    result += _result
-    errrec += _err
-    double += _double
 
-    _result, _err, _double = result_init(
+    result_init(
+        'Д. КАБАНОВО',
+        config.HARDWARE,
+        'Комутаторы КБ', houses
+        )
+
+
+
+    result_init(
         ['Д. ДЕМИХОВО', 'Д. НАЖИЦЫ', 'Д. КРАСНАЯ ДУБРАВА'],
         config.HARDWARE,
         'Комутаторы ДМ', houses)
-    result += _result
-    errrec += _err
-    double += _double
 
-    out_file(result, 'result')
-    out_file(errrec, 'Err')
-    out_file(double, 'Дубли')
+    # # global err_rec
+    # err_rec = []
+    # # geodata = []
+    # # global result
+    # result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
+    #             'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
+    #             'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
+    #             'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
+    #             'P_TRANSIT', 'P_REMOVED', 'P_HOUSE_ID']]
+    # # global double
+    # double = []
 
-    errrec = []
-    # geodata = []
-    result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
-               'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
-               'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
-               'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
-               'P_REMOVED', 'P_TRANSIT', 'P_HOUSE_ID']]
-    double = []
 
-    _result, _err, _double = result_init('Г. ОРЕХОВО-ЗУЕВО',
-                                         config.HARDWARE,
-                                         'Broken ОЗ', houses)
-    result += _result
-    errrec += _err
-    double += _double
+
+    result_init(
+        'Г. ОРЕХОВО-ЗУЕВО',
+        config.HARDWARE,
+        'Broken ОЗ', houses
+        )
 
     out_file(result, 'result_Broken')
-    out_file(errrec, 'Err_Broken')
+    out_file(err_rec, 'Err_Broken')
     out_file(double, 'Дубли')
 
 
