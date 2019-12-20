@@ -8,16 +8,14 @@ from os import path
 from err_decorator import error_decorator
 
 
-global err_rec
 err_rec = []
 # geodata = []
-global result
+
 result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
             'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
             'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
             'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
             'P_TRANSIT', 'P_REMOVED', 'P_HOUSE_ID']]
-global double
 double = []
 
 
@@ -76,7 +74,7 @@ def hardware_init(fname, sheet):
 
 
 @timecall
-@error_decorator(err_rec, result, double)
+@error_decorator()
 def result_init(town, fname, sheet, houses):
     houses_town = houses_filter(town, houses)
     _err = []
@@ -156,7 +154,7 @@ def result_init(town, fname, sheet, houses):
             # geodata.append([str(res_tmp[0][4])] + [location])
 
     print("result:", len(_result))
-    return _result, _err, _double,
+    return _result, _err, _double
 
 
 @timecall
@@ -189,11 +187,19 @@ def main():
 
 
     houses = houses_init()
+
+    result_init(
+        'Г. ЛИКИНО-ДУЛЕВО',
+        config.HARDWARE,
+        'Комутаторы ЛД', houses
+        )
+
     result_init(
         'Г. ОРЕХОВО-ЗУЕВО',
         config.HARDWARE,
         'Комутаторы ОЗ', houses
         )
+
 
     out_file(result, 'result_OZ')
     out_file(err_rec, 'Err_OZ')
@@ -203,12 +209,6 @@ def main():
                                          config.HARDWARE,
                                          'Комутаторы КУ', houses)
 
-
-    result_init(
-        'Г. ЛИКИНО-ДУЛЕВО',
-        config.HARDWARE,
-        'Комутаторы ЛД', houses
-        )
 
 
     result_init(

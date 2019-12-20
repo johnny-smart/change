@@ -4,7 +4,7 @@
 # Ignore all local history of files
 .history
 *.json
-config.py
+config*
 test.py
 *.csv
 
