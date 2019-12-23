@@ -1,10 +1,10 @@
 import requests
 import json
 import re
-
+import config_kladr
 
 def main(town, address):
-    print(town)
+    reg_code = town_code(town)
     address_number_tmp = re.match(r'^(\d+)', address[1]).group(0)
     address_street_tmp = address[0].split('. ')
 
@@ -14,7 +14,7 @@ def main(town, address):
 
     request = requests.get(
         'http://localhost:5000/api/v1/Kladr/',
-        params={'adress': " ".join([address[0],address_number_tmp])})
+        params={'cityId':reg_code,'adress': " ".join([address[0],address_number_tmp])})
     if request.ok:
         response = json.loads(request.text)
         res = response.get('result')
@@ -27,12 +27,14 @@ def main(town, address):
                                 and address[1].lower() == item_kladr[1].lower()
                                 and address_street_tmp[0].lower() == item_kladr[2]):
 
-                        return [True, address]
+                        return [True, address,item_kladr]
     return [False, address]
 
 
-
-
+def town_code(town):
+    town = town.split('. ')
+    if town[1].upper() in config_kladr.FIAS_CODE:
+       return config_kladr.FIAS_CODE.get(town[1].upper())
 
 def format_kladr(item):
     for parent in item.get('parents'):
@@ -47,7 +49,6 @@ def format_item_addr(addr):
         addr = addr[0].split(" строение ")
 
     if len(addr)>1 :
-        print(addr)
         if addr[1].isdigit():
            addr =  '/'.join(addr)
 
