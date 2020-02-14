@@ -5,17 +5,15 @@ from profilehooks import timecall, profile
 # from geolocation import geoadressation
 from os import remove
 from os import path
-from err_decorator import error_decorator
+from err_decorator import error_module
+from functools import partial
+import json
 
 
 err_rec = []
 # geodata = []
 
-result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
-            'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
-            'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
-            'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
-            'P_TRANSIT', 'P_REMOVED', 'P_HOUSE_ID']]
+
 double = []
 
 
@@ -74,14 +72,14 @@ def hardware_init(fname, sheet):
 
 
 @timecall
-@error_decorator()
-def result_init(town, fname, sheet, houses):
+def result_init(houses, arg):
+    town, sheet = arg[0], arg[1]
     houses_town = houses_filter(town, houses)
     _err = []
     _double = []
     _result = []
 
-    hardware = hardware_init(fname, sheet)
+    hardware = hardware_init(config.HARDWARE, sheet)
     print("hardware:", len(hardware))
     for init in hardware:
         res_tmp = []
@@ -134,7 +132,7 @@ def result_init(town, fname, sheet, houses):
                 break
 
         if not res_tmp:
-            # print(init[:4])
+
             _err += [init]
         else:
             if (len(res_tmp) > 1):
@@ -143,32 +141,24 @@ def result_init(town, fname, sheet, houses):
                         _double += res_tmp
                     else:
                         _result += res_tmp
-                # print(type(res_tmp[1]))
+
             else:
                 _result += res_tmp
 
-            # adress = (res_tmp[0][5] + ', ' + res_tmp[0][1] + ', ' +
-            #           res_tmp[0][2])
-
-            # location = geoadressation(adress)
-            # geodata.append([str(res_tmp[0][4])] + [location])
 
     print("result:", len(_result))
-    return _result, _err, _double
+    _result, _err,  = error_module(_result, _err, town)
+    return {'result':_result, 'err':_err, 'double':_double}
 
 
 @timecall
 def out_file(result, namefile):
-    # try:
-    #     with open(namefile + '.csv', newline='') as newfile:
-    #         scvwr = csv.writer(newfile, delimiter=';')
-    #         for row in result:
-    #             scvwr.writerow(row)
-    # except BaseException:
+    result = [x for i,x in enumerate(result) if not x is None]
 
+
+    # try:
     if path.isfile(config.DIR + namefile + '.csv'):
         remove(config.DIR + namefile + '.csv')
-
     with open(
 
                 config.DIR + namefile + '.csv',
@@ -178,76 +168,84 @@ def out_file(result, namefile):
             ) as newfile:
 
         scvwr = csv.writer(newfile, delimiter=';', quoting=csv.QUOTE_MINIMAL)
+
         scvwr.writerows(result)
-    print(namefile + ' done')
-    newfile.close()
+
+
+
+
+def regions_worker(reg_list, houses, flag_mod=''):
+    _err = []
+
+    _result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
+            'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
+            'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
+            'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
+            'P_TRANSIT', 'P_REMOVED', 'P_HOUSE_ID']]
+
+    result_init_tmp = partial(result_init,houses)
+
+    output_init = list(map(result_init_tmp,reg_list))
+
+    for item in output_init:
+        _result+=(item['result'])
+        _err+=(item['err'])
+
+    for i, d in enumerate(_result):
+        if d is None:
+            print (i)
+
+    _removed = [x for i,x in enumerate(_err) if x[19] == 1]
+    _err = [x for i,x in enumerate(_err) if x[19] is None]
+
+    out_file(_removed, 'Removed' + flag_mod)
+    out_file(_result, 'Result' + flag_mod)
+    out_file(_err, 'Err' + flag_mod)
+    print()
+
 
 @profile
 def main():
-
-
     houses = houses_init()
 
-    result_init(
-        'Г. ЛИКИНО-ДУЛЕВО',
-        config.HARDWARE,
-        'Комутаторы ЛД', houses
-        )
-
-    result_init(
-        'Г. ОРЕХОВО-ЗУЕВО',
-        config.HARDWARE,
-        'Комутаторы ОЗ', houses
-        )
-
-
-    out_file(result, 'result_OZ')
-    out_file(err_rec, 'Err_OZ')
-    out_file(double, 'Дубли')
-
-    result_init('Г. КУРОВСКОЕ',
-                                         config.HARDWARE,
-                                         'Комутаторы КУ', houses)
-
-
-
-    result_init(
-        'Д. КАБАНОВО',
-        config.HARDWARE,
-        'Комутаторы КБ', houses
+    regions_worker(
+        [
+            [
+                'Д. КАБАНОВО',
+                'Комутаторы КБ',
+            ],
+            [
+                'Г. ЛИКИНО-ДУЛЕВО',
+                'Комутаторы ЛД',
+            ],
+            [
+                'Г. ОРЕХОВО-ЗУЕВО',
+                'Комутаторы ОЗ',
+            ],
+            [
+                'Г. КУРОВСКОЕ',
+                'Комутаторы КУ',
+            ],
+            [
+                ['Д. ДЕМИХОВО', 'Д. НАЖИЦЫ', 'Д. КРАСНАЯ ДУБРАВА'],
+                'Комутаторы ДМ',
+            ],
+        ],
+        houses
         )
 
 
-
-    result_init(
-        ['Д. ДЕМИХОВО', 'Д. НАЖИЦЫ', 'Д. КРАСНАЯ ДУБРАВА'],
-        config.HARDWARE,
-        'Комутаторы ДМ', houses)
-
-    # # global err_rec
-    # err_rec = []
-    # # geodata = []
-    # # global result
-    # result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
-    #             'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
-    #             'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
-    #             'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
-    #             'P_TRANSIT', 'P_REMOVED', 'P_HOUSE_ID']]
-    # # global double
-    # double = []
-
-
-
-    result_init(
-        'Г. ОРЕХОВО-ЗУЕВО',
-        config.HARDWARE,
-        'Broken ОЗ', houses
-        )
-
-    out_file(result, 'result_Broken')
-    out_file(err_rec, 'Err_Broken')
-    out_file(double, 'Дубли')
+    # regions_worker(
+    #     [[
+    #             'Г. ОРЕХОВО-ЗУЕВО',
+    #             'Комутаторы ОЗ',
+    #     ]],
+    #     houses,
+    #     '_OZ'
+    #     )
+    print('done')
 
 
 if __name__ == "__main__":
+
     main()
