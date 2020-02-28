@@ -21,14 +21,12 @@ err_tmp = []
 #     return _result, _err
 
 
-def error_module(_result, _err, town):
+def error_module(_result, town):
     if isinstance(town,list):
         town = town[0]
     error_module_fun = partial(main, town)
-    re_search_err = (list(map(error_module_fun, _err)))
     re_search_result = (list(map(error_module_fun, _result)))
 
-    re_search_result.extend(re_search_err)
     _err = err_tmp.copy()
     err_tmp.clear()
     return re_search_result, _err
@@ -101,7 +99,8 @@ def main(town, address):
         return address_tmp
 
     try:
-        kladr_number = (re.match(r'^(\d+[/]\d)', address[1]).group(0))
+        address_number_tmp = (re.match(r'^(\d+[/]\d)', address[1]).group(0))
+        kladr_number = (re.match(r'^(\d+)', address[1]).group(0))
     except BaseException:
         kladr_number = (re.match(r'^(\d+)', address[1]).group(0))
     address_tmp = building(address_number_tmp, street_code, address, reg_code, kladr_number)
@@ -120,7 +119,7 @@ def building(address_number_tmp, street_code, address, reg_code, kladr_number=No
         village = ''
 
     if (street_code) or ( village == 'д.'):
-        hash_redis_build = hashing(address_number_tmp.upper() + street_code, reg_code)
+        hash_redis_build = hashing(kladr_number.upper() + street_code, reg_code)
         get_redis_street = redis_data_output(address_number_tmp, street_code, hash_redis_build)
 
         if not get_redis_street:
@@ -140,7 +139,7 @@ def building(address_number_tmp, street_code, address, reg_code, kladr_number=No
             if (re.match(r'^(\w[.])',address[0]).group(0).lower() == 'д.'):
                 street_code = reg_code
 
-        kladr_unit = compare_kladr(resp_build, kladr_number, street_code, 'building')
+        kladr_unit = compare_kladr(resp_build, address_number_tmp, street_code, 'building')
         if kladr_unit:
             address.append(00)
             return address

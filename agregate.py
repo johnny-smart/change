@@ -32,10 +32,12 @@ def main():
     return hardware
 
 
+@timecall
 def hardware_init(sheet):
+    fname = config.HARDWARE
     hardware = []
 
-    hardware_wb = openpyxl.load_workbook(config.HARDWARE)
+    hardware_wb = openpyxl.load_workbook(fname)
     hardware_list = hardware_wb[sheet].rows
 
     next(hardware_list)
@@ -43,7 +45,7 @@ def hardware_init(sheet):
     for row in hardware_list:
         cols = [None]*20
         for init in row:
-            cols[init.column-1] = init.value
+            cols[init.column-1] = str(init.value)
 
             if (((init.column == 10) or (init.column == 11)) and
                (init.value is not None)):
@@ -85,32 +87,46 @@ def finder(namelist,namespace):
     for dev in namelist:
         for i, place in enumerate(namespace.copy()):
             if len(place) != 0:
-                if (not place[3] is None):
-                    if  not( isinstance(place[3],list)):
-                        if place[3].find(';') != -1:
-                            place[3] = place[3].split(';')
-                        else:
-                            place[3] = [place[3]]
-                else:
-                    place[3] = [place[3]]
+                if place[3] != place[4]:
+                    if place[3]:
+                        if place[3] =='None':
+                            place[3] = []
+                        elif  not( isinstance(place[3],list)):
+                            if place[3].find(';') != -1:
+                                place[3] = place[3].split(';')
+                            else:
+                                place[3] = [place[3]]
+                    else:
+                        place[3] = []
 
-                if (not place[4] is None):
-                    if not(isinstance(place[4],list)):
-                        if place[4].find(';') != -1:
-                            place[4] = place[4].split(';')
-                        else:
-                            place[4] = [place[4]]
-                else:
-                    place[4] = [place[4]]
+                    if place[4]:
+                        if place[4] =='None':
+                            place[4] = []
+                        elif not(isinstance(place[4],list)):
+                            if place[4].find(';') != -1:
+                                place[4] = place[4].split(';')
+                            else:
+                                place[4] = [place[4]]
+                    else:
+                        place[4] = []
 
-                hard_ip = []
-                hard_ip.extend(place[4])
-                hard_ip.extend(place[3])
-                print(hard_ip)
-                if dev in hard_ip:
-                    found.update({dev:{dev:namelist[dev],'hardware': place}})
-                    iter_arr.append(i)
-                    break
+                    if place[4]:
+                        place[3] = []
+                    else:
+                        print()
+
+                    hard_ip = []
+                    hard_ip.extend(place[4])
+                    hard_ip.extend(place[3])
+                    print(hard_ip)
+                    if dev in hard_ip:
+
+                        place[3] = dev
+                        place[4] = dev
+                        place[16] = namelist[dev]['name']
+                        found.update({dev:{dev:namelist[dev],'hardware': place}})
+                        iter_arr.append(i)
+                        break
         else:
             not_found.update({dev:namelist[dev]})
 
@@ -137,9 +153,7 @@ def output(name, obj):
     pass
 
 
-
-
-if __name__ == "__main__":
+def check_changer():
 
     with open(config.PATH_FILTER_XML, 'r', encoding='utf-8-sig') as loaded_map:
         smart_map = json.load(loaded_map)
@@ -158,6 +172,25 @@ if __name__ == "__main__":
     print('found',len(found))
     print('active',len(hardware))
     print('hardware', len(hard))
-    print('Не найдено в excel active из карты', len(excel_not_found))
-    output('map_not_found', list(not_found.keys()) )
+    print('Не найдено из excel active на карте', len(excel_not_found))
+    output('map_not_found', not_found)
     print(not_found.keys())
+    output('found_agregate', found)
+    names(found)
+    return excel_not_found, found
+
+def names(found):
+    result=[]
+    without_double = []
+    for item in found:
+        rows = found[item][item]
+        xl = found[item]['hardware']
+        result.append({rows['name']:{'name':rows['name'],'дом':xl[1],'ул':xl[0],'ip':item}})
+        if xl[1] != rows['name']:
+            without_double.append({rows['name']:{'name':rows['name'],'дом':xl[1],'ул':xl[0],'ip':item}})
+    output('names', result)
+    output('without_double', without_double)
+
+if __name__ == "__main__":
+
+    check_changer()

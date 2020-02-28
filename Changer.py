@@ -8,7 +8,7 @@ from os import path
 from err_decorator import error_module
 from functools import partial
 import json
-
+from agregate import check_changer
 
 err_rec = []
 # geodata = []
@@ -19,28 +19,28 @@ double = []
 
 # функция для создания и заполнения массива записей домов
 # (ввод: имя внутри функции, вывод: маcсив записей)
-@timecall
-def houses_init():
-    houses = []
-    houses_wb = openpyxl.load_workbook(config.HOUSES)
-    houses_sn = houses_wb.sheetnames[0]
-    w_sheet = houses_wb[houses_sn]
-    houses_list = w_sheet.rows
-    next(houses_list)
-    for row in houses_list:
-        cols = []
-        for init in row:
-            cols.append(init.value)
-        houses.append(cols)
-    return(houses)
+# @timecall
+# def houses_init():
+#     houses = []
+#     houses_wb = openpyxl.load_workbook(config.HOUSES)
+#     houses_sn = houses_wb.sheetnames[0]
+#     w_sheet = houses_wb[houses_sn]
+#     houses_list = w_sheet.rows
+#     next(houses_list)
+#     for row in houses_list:
+#         cols = []
+#         for init in row:
+#             cols.append(init.value)
+#         houses.append(cols)
+#     return(houses)
 
 
-def houses_filter(town, houses):
-    houses_filtred = []
-    for row in houses:
-        if (row[1] in town):
-            houses_filtred.append(row)
-    return houses_filtred
+# def houses_filter(town, houses):
+#     houses_filtred = []
+#     for row in houses:
+#         if (row[1] in town):
+#             houses_filtred.append(row)
+#     return houses_filtred
 
 
 @timecall
@@ -56,7 +56,7 @@ def hardware_init(fname, sheet):
     for row in hardware_list:
         cols = [None]*20
         for init in row:
-            cols[init.column-1] = init.value
+            cols[init.column-1] = str(init.value)
 
             if (((init.column == 10) or (init.column == 11)) and
                (init.value is not None)):
@@ -72,83 +72,17 @@ def hardware_init(fname, sheet):
 
 
 @timecall
-def result_init(houses, arg):
+def result_init(arg):
     town, sheet = arg[0], arg[1]
-    houses_town = houses_filter(town, houses)
+
     _err = []
-    _double = []
-    _result = []
 
-    hardware = hardware_init(config.HARDWARE, sheet)
-    print("hardware:", len(hardware))
-    for init in hardware:
-        res_tmp = []
-        try:
-            number_hard = ((str(init[1]).split(','))[0].split('.'))[0]
-        except BaseException:
-            pass
+    _result = hardware_init(config.HARDWARE, sheet)
 
-        street_hard = init[0]
-
-        for row in houses_town:
-
-            try:
-                number_house_arr = str(row[3]).split()
-                row[3] = number_house_arr[0]
-                street_house = row[2]
-            except BaseException:
-                print('err try')
-
-            try:
-                if(
-                    (number_house_arr[1][0].isalpha()) or
-                    ('/' in number_house_arr[1])
-                ):
-                    row[3] = "".join(number_house_arr)
-
-            except BaseException:
-                pass
-
-            number_house = row[3]
-
-            street_hard_tmp = street_hard.upper().strip()
-
-            if ((street_house == 'УЛ. .') or (street_house == 'ул. .') or
-               (street_house == 'Ул. .')):
-                street_house = row[1]
-
-            if len(street_hard_tmp.split('.')) < 2:
-                street_hard_tmp = 'УЛ. ' + street_hard_tmp
-
-            street_house_tmp = street_house.upper().strip()
-
-            if (
-                (street_house_tmp == street_hard_tmp) &
-                (number_hard.upper().strip() == number_house.upper().strip()) &
-                (row[1] in town)
-                                ):
-
-                res_tmp.append([init[0]]+[str(init[1])]+init[2:]+[int(row[0])])
-                break
-
-        if not res_tmp:
-
-            _err += [init]
-        else:
-            if (len(res_tmp) > 1):
-                for record in res_tmp:
-                    if (record[18] or record[19]) == '1':
-                        _double += res_tmp
-                    else:
-                        _result += res_tmp
-
-            else:
-                _result += res_tmp
-
-
+    print("hardware", len(_result))
+    _result, _err = error_module(_result,  town)
     print("result:", len(_result))
-    _result, _err,  = error_module(_result, _err, town)
-    return {'result':_result, 'err':_err, 'double':_double}
+    return {'result':_result, 'err':_err,}
 
 
 @timecall
@@ -171,21 +105,40 @@ def out_file(result, namefile):
 
         scvwr.writerows(result)
 
+def format_founded(excel_lost, map_found, address):
+    if address[0] == 'P_STREET':
+        return address
+
+    for i, item in enumerate(excel_lost):
+        if item[0] == address[0] and item[1] == address[1]:
+            return False
+
+    for item in map_found:
+        founded_address = map_found[item]['hardware']
+        if address[0] == founded_address[0] and address[1] == founded_address[1]:
+            address_tmp = address[4].split(';')
+            if (address[3]==item or item in address_tmp):
+                address = founded_address
+                if address[7].find('\n') != -1:
+                    address[7] = "|".join(address[7].split('\n'))
+
+                return address
+    else:
+        print('\n Не найдено соответствие :', address)
+        return False
 
 
 
-def regions_worker(reg_list, houses, flag_mod=''):
+def regions_worker(reg_list, flag_mod=''):
     _err = []
 
     _result = [['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
             'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
             'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
             'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
-            'P_TRANSIT', 'P_REMOVED', 'P_HOUSE_ID']]
+            'P_TRANSIT', 'P_REMOVED',]]
 
-    result_init_tmp = partial(result_init,houses)
-
-    output_init = list(map(result_init_tmp,reg_list))
+    output_init = list(map(result_init,reg_list))
 
     for item in output_init:
         _result+=(item['result'])
@@ -195,8 +148,27 @@ def regions_worker(reg_list, houses, flag_mod=''):
         if d is None:
             print (i)
 
+    map_not_found, found = check_changer()
+    _result = [x for i,x in enumerate(_result) if x is not None]
+    format_founded_tmp = partial(format_founded, map_not_found, found)
+
+    _result = list(map(format_founded_tmp, _result))
+
     _removed = [x for i,x in enumerate(_err) if x[19] == 1]
+
+    _result = [x for i,x in enumerate(_result) if x ]
+
     _err = [x for i,x in enumerate(_err) if x[19] is None]
+
+    _err = list(map(format_founded_tmp, _err))
+
+    _err = [x for i,x in enumerate(_err) if x ]
+
+    _err.insert(0,['P_STREET', 'P_HOUSE', 'P_MODEL', 'P_IP_OLD', 'P_IP',
+            'P_VECTOR', 'P_UPLINK', 'P_MAC', 'P_VLAN', 'P_DATE_SETUP',
+            'P_DATE_INSTALL', 'P_FLATS', 'P_DOOR', 'P_FLOOR',
+            'P_DESCRIPTION', 'P_RESERVED1', 'P_RESERVED2', 'P_RESERVED3',
+            'P_TRANSIT', 'P_REMOVED',])
 
     out_file(_removed, 'Removed' + flag_mod)
     out_file(_result, 'Result' + flag_mod)
@@ -206,7 +178,6 @@ def regions_worker(reg_list, houses, flag_mod=''):
 
 @profile
 def main():
-    houses = houses_init()
 
     regions_worker(
         [
@@ -231,7 +202,7 @@ def main():
                 'Комутаторы ДМ',
             ],
         ],
-        houses
+
         )
 
 
@@ -240,7 +211,7 @@ def main():
     #             'Г. ОРЕХОВО-ЗУЕВО',
     #             'Комутаторы ОЗ',
     #     ]],
-    #     houses,
+
     #     '_OZ'
     #     )
     print('done')
