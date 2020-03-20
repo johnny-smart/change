@@ -68,7 +68,7 @@ def output_xl_file(hard):
     if path.isfile(config.DIR + 'hardware_copy_all' + '.csv'):
         remove(config.DIR + 'hardware_copy_all' + '.csv')
 
-    with open(config.DIR + 'hardware_copy_all' + '.csv', 'a+', newline='') as newfile:
+    with open(config.DIR + 'hardware_copy_all' + '.csv', 'w', newline='', encoding='utf-8-sig') as newfile:
 
         scvwr = csv.writer(newfile, delimiter=';', quoting=csv.QUOTE_MINIMAL)
 
@@ -148,8 +148,8 @@ def output(name, obj):
     if path.isfile(config.DIR + name + '.json'):
         remove(config.DIR + name + '.json')
 
-    with open(config.DIR + name + '.json', 'a+', newline='') as newfile:
-        json.dump(obj,newfile)
+    with open(config.DIR + name + '.json', 'w', newline='', encoding='utf-8-sig') as newfile:
+        json.dump(obj, newfile, indent=4, sort_keys=True)
     pass
 
 

@@ -96,8 +96,9 @@ def out_file(result, namefile):
     with open(
 
                 config.DIR + namefile + '.csv',
-                'a+',
-                newline=''
+                'w',
+                newline='',
+                encoding='utf-8-sig'
 
             ) as newfile:
 
