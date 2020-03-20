@@ -118,7 +118,7 @@ def finder(namelist,namespace):
                     hard_ip = []
                     hard_ip.extend(place[4])
                     hard_ip.extend(place[3])
-                    print(hard_ip)
+                    print("finder:", hard_ip)
                     if dev in hard_ip:
 
                         place[3] = dev
