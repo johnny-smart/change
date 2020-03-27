@@ -89,7 +89,7 @@ def format_founded(excel_lost, map_found, address):
 
                 return address
     else:
-        print('\n Не найдено соответствие :', address)
+        print('\nНе найдено соответствие:', address)
         return False
 
 
@@ -108,9 +108,9 @@ def regions_worker(reg_list, flag_mod=''):
         _result += (item['result'])
         _err += (item['err'])
 
-    for i, d in enumerate(_result):
-        if d is None:
-            print(i)
+    # for i, d in enumerate(_result):
+    #     if d is None:
+    #         print("regions_worker() i:", i)
 
     map_not_found, found = check_changer()
     _result = [x for i, x in enumerate(_result) if x is not None]
