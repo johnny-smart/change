@@ -46,7 +46,7 @@ def hardware_init(sheet):
     for row in hardware_list:
         cols = [None]*20
         for init in row:
-            cols[init.column-1] = str(init.value)
+            cols[init.column-1] = str(init.value).strip()
 
             if (((init.column == 10) or (init.column == 11)) and
                     (init.value is not None)):
