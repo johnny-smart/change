@@ -7,7 +7,7 @@ from os import remove
 from os import path
 from err_decorator import error_module
 import json
-from functools import partial
+from functools import partial, lru_cache
 
 
 def main():
@@ -34,6 +34,7 @@ def main():
 
 
 @timecall
+@lru_cache
 def hardware_init(sheet):
     fname = config.HARDWARE
     hardware = []

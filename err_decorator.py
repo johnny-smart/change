@@ -2,7 +2,7 @@ import requests
 import json
 import re
 import config_kladr
-from functools import partial
+from functools import partial, lru_cache
 import redis
 import hashlib
 from profilehooks import timecall
@@ -172,6 +172,7 @@ def hashing(address, cityId):
 
 
 # @timecall
+@lru_cache
 def redis_data_output(address, cityId, hashing_string):
     request_data = redis_connect.get(hashing_string)
     redis_connect.pttl(hashing_string)
