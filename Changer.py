@@ -8,7 +8,7 @@ from os import path
 from err_decorator import error_module
 from functools import partial
 import json
-from agregate import check_changer
+from agregate import check_changer, hardware_init
 
 err_rec = []
 # geodata = []
@@ -44,40 +44,12 @@ double = []
 
 
 @timecall
-def hardware_init(fname, sheet):
-
-    hardware = []
-
-    hardware_wb = openpyxl.load_workbook(fname)
-    hardware_list = hardware_wb[sheet].rows
-
-    next(hardware_list)
-
-    for row in hardware_list:
-        cols = [None]*20
-        for init in row:
-            cols[init.column-1] = str(init.value)
-
-            if (((init.column == 10) or (init.column == 11)) and
-                    (init.value is not None)):
-                cols[init.column-1] = str(init.value).split(' ')[0]
-            if (((init.column == 1) or (init.column == 2)) and (init.font.strike is True)):
-                cols[19] = 1
-            if (init.column == 4 or init.column == 5):
-                if(init.fill.fgColor.rgb == 'FF00B0F0'):
-                    cols[18] = 1
-        if not (cols[0] is None):
-            hardware.append(cols)
-    return(hardware)
-
-
-@timecall
 def result_init(arg):
     town, sheet = arg[0], arg[1]
 
     _err = []
 
-    _result = hardware_init(config.HARDWARE, sheet)
+    _result = hardware_init(sheet)
 
     print("hardware", len(_result))
     _result, _err = error_module(_result,  town)
