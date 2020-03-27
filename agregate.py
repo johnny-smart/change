@@ -111,13 +111,13 @@ def finder(namelist, namespace):
 
                     if place[4]:
                         place[3] = []
-                    else:
-                        print()
+                    # else:
+                    #     print()
 
                     hard_ip = []
                     hard_ip.extend(place[4])
                     hard_ip.extend(place[3])
-                    print("finder:", hard_ip)
+                    # print("finder:", hard_ip)
                     if dev in hard_ip:
 
                         place[3] = dev
@@ -164,7 +164,7 @@ def check_changer():
 
     hardware = [unit for i, unit in enumerate(hard) if unit[19] != 1]
     hard = {'{}'.format(i): x for i, x in enumerate(hard)}
-    len_hard = len(hard)
+    # len_hard = len(hard)
 
     found, not_found, excel_not_found = finder(smart_map, hardware)
 

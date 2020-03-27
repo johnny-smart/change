@@ -171,7 +171,7 @@ def hashing(address, cityId):
     return hash_string
 
 
-@timecall
+# @timecall
 def redis_data_output(address, cityId, hashing_string):
     request_data = redis_connect.get(hashing_string)
     redis_connect.pttl(hashing_string)
